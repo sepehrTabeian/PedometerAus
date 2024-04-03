@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">PedometerAus</string>
-    <string name="notification_text">Pedometer Service</string>
+    <string name="notification_text">Steps : </string>
 </resources>

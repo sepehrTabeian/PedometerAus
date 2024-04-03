@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
             // Request permissions if not granted
             requestPermissions();
         } else {
-            Intent intent = new Intent(this,AppService.class);
+            Intent intent = new Intent(this,PedometerService.class);
             startService(intent);
         }
 
@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (allPermissionsGranted) {
-                Intent intent = new Intent(this,AppService.class);
+                Intent intent = new Intent(this,PedometerService.class);
                 startService(intent);
             } else {
                 // Permissions not granted, inform the user

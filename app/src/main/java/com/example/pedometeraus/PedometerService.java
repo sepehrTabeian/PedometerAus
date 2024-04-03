@@ -40,7 +40,7 @@ public class PedometerService extends Service {
 
     startForeground(NOTIFICATION_ID, createNotification(0));
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     @Override
@@ -57,20 +57,24 @@ public class PedometerService extends Service {
     }
     private Notification createNotification(int stepCount) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        if (notificationManager == null){
-            return  null;
+        if (notificationManager == null) {
+            return null;
         }
-        NotificationChannel notificationChannel = new NotificationChannel(NotificationChannel.DEFAULT_CHANNEL_ID,"Default",NotificationManager.IMPORTANCE_HIGH);
-            notificationManager.createNotificationChannel(notificationChannel) ;
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationChannel.DEFAULT_CHANNEL_ID)
+
+        // Create a notification channel if it doesn't exist
+        String channelId = "default_channel";
+        NotificationChannel channel = new NotificationChannel(channelId, "Default Channel", NotificationManager.IMPORTANCE_HIGH);
+        notificationManager.createNotificationChannel(channel);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
                 .setSmallIcon(R.mipmap.pedometer_icon)
                 .setContentTitle(getString(R.string.app_name))
-                .setContentText(getString(R.string.notification_text) + stepCount) // Directly concatenate stepCount
+                .setContentText(getString(R.string.notification_text) + stepCount)
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE);
-        builder.setContentIntent(pendingIntent);
+//        Intent notificationIntent = new Intent(this, MainActivity.class);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_MUTABLE);
+//        builder.setContentIntent(pendingIntent);
 
         return builder.build();
     }
