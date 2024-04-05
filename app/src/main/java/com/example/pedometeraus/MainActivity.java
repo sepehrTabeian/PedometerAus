@@ -3,9 +3,14 @@ package com.example.pedometeraus;
 
 import static com.example.pedometeraus.utils.Constants.PERMISSION_REQUEST_CODE;
 import android.Manifest;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,12 +23,29 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
+    private PedometerService pedometerService;
+    private boolean isBound = false;
+    private TextView stepCountTextView;
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            PedometerService.PedometerBinder binder = (PedometerService.PedometerBinder) service;
+            pedometerService = binder.getService();
+            isBound = true;
+            updateStepCount();
+        }
 
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false;
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        stepCountTextView = findViewById(R.id.stepCountTextView);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -41,6 +63,29 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent = new Intent(this, PedometerService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
+    }
+
+    private void updateStepCount() {
+        if (isBound) {
+            int stepCount = pedometerService.getStepCount();
+            String stepCountText = getString(R.string.step_count_label, stepCount);
+            stepCountTextView.setText(stepCountText);
+        }
     }
     private boolean checkPermissions() {
         // Check for permission to access activity recognition
